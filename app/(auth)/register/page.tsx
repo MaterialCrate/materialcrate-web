@@ -7,6 +7,7 @@ import Password from "@/app/components/register/Password";
 import Username from "@/app/components/register/Username";
 import Institution from "@/app/components/register/Institution";
 import Program from "@/app/components/register/Program";
+import Welcome from "@/app/components/register/Welcome";
 
 export default function Page() {
   const [step, setStep] = useState<number>(1);
@@ -15,6 +16,7 @@ export default function Page() {
   const [username, setUsername] = useState<string>("");
   const [institution, setInstitution] = useState<string>("");
   const [program, setProgram] = useState<string>("");
+  const [toGoPage, setToGoPage] = useState<string>("");
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,18 +28,27 @@ export default function Page() {
       setStep(4);
     } else if (step === 4 && institution) {
       setStep(5);
+    } else if (step === 5 && program) {
+      setStep(6);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting: ", { email, password, username });
+    console.log("Submitting: ", {
+      email,
+      password,
+      username,
+      institution,
+      program,
+      toGoPage,
+    });
   };
 
   return (
     <form
-      className="flex flex-col h-screen items-center px-12 py-12 gap-16 relative"
-      onSubmit={step < 7 ? handleNext : handleSubmit}
+      className="flex flex-col h-screen items-center px-8 py-12 gap-16 relative"
+      onSubmit={step < 6 ? handleNext : handleSubmit}
     >
       {step !== 1 && (
         <HiOutlineArrowLeft
@@ -58,8 +69,10 @@ export default function Page() {
           institution={institution}
           setInstitution={setInstitution}
         />
+      ) : step === 5 ? (
+        <Program program={program} setProgram={setProgram} />
       ) : (
-        step === 5 && <Program program={program} setProgram={setProgram} />
+        <Welcome selectedOption={toGoPage} setSelectedOption={setToGoPage} />
       )}
     </form>
   );
