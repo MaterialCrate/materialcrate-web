@@ -35,7 +35,7 @@ export default function Password({ password, setPassword }: passwordTypes) {
       </div>
       <div className="space-y-5">
         <div>
-          <h4 className="font-medium">Password</h4>
+          <h4 className="font-medium">PASSWORD</h4>
           <input
             type="password"
             value={password}
