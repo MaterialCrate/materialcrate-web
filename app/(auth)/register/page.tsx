@@ -17,6 +17,8 @@ export default function Page() {
   const [institution, setInstitution] = useState<string>("");
   const [program, setProgram] = useState<string>("");
   const [toGoPage, setToGoPage] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,14 +37,37 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting: ", {
-      email,
-      password,
-      username,
-      institution,
-      program,
-      toGoPage,
-    });
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/custom-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          username,
+          institution,
+          program,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Signup failed");
+      }
+
+      const loginUrl = new URL("/auth/login", window.location.origin);
+      loginUrl.searchParams.set("login_hint", email);
+      loginUrl.searchParams.set("returnTo", "/");
+      window.location.href = loginUrl.toString();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

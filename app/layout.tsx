@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Libre_Baskerville } from "next/font/google";
+import { Auth0Provider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,7 +30,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${libreBaskerville.variable} antialiased`}
     >
-      <body className="font-sans">{children}</body>
+      <Auth0Provider>
+        <body className="font-sans">{children}</body>
+      </Auth0Provider>
     </html>
   );
 }
