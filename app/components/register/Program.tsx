@@ -19,7 +19,7 @@ export default function Program({ program, setProgram }: passwordTypes) {
             value={program}
             onChange={(e) => setProgram(e.target.value)}
             placeholder="e.g. Computer science"
-            className="border border-black w-full px-4 py-2 rounded-lg"
+            className="border border-black w-full px-4 py-3 rounded-lg"
             required
           />
         </div>

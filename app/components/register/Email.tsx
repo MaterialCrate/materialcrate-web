@@ -1,5 +1,6 @@
 import React from "react";
 import { usePathname } from "next/navigation";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
 
 interface emailTypes {
   email: string;
@@ -14,23 +15,23 @@ export default function Email({ email, setEmail }: emailTypes) {
     <div className="h-screen relative w-full">
       <div className="text-center fixed top-30 w-70 left-0 right-0 mx-auto">
         <h1 className="font-serif text-4xl">
-          {pathname === "/register" ? "Let&#39;s get started" : "Welcome back"}
+          {pathname === "/register" ? "Let's get started" : "Welcome back"}
         </h1>
       </div>
       <div className="space-y-5 flex flex-col w-full h-full justify-center">
         <button
           type="button"
-          className="border border-black flex items-center justify-between w-full px-4 py-2 rounded-lg"
+          className="border border-black flex items-center justify-between w-full px-4 py-3 rounded-lg"
         >
           <p className="font-medium">Continue with Google</p>
-          <div className="w-7 h-7 rounded-full bg-black"></div>
+          <FaGoogle size={24} />
         </button>
         <button
           type="button"
-          className="border border-black flex items-center justify-between w-full px-4 py-2 rounded-lg mb-15"
+          className="border border-black flex items-center justify-between w-full px-4 py-3 rounded-lg mb-15"
         >
           <p className="font-medium">Continue with Facebook</p>
-          <div className="w-7 h-7 rounded-full bg-black"></div>
+          <FaFacebook size={24} />
         </button>
         <div className="flex items-center justify-between">
           <div className="h-px w-15 bg-linear-to-r from-transparent via-gray-500 to-black" />
@@ -42,7 +43,7 @@ export default function Email({ email, setEmail }: emailTypes) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="border border-black w-full px-4 py-2 rounded-lg mt-4"
+          className="border border-black w-full px-4 py-3 rounded-lg mt-4"
           required
         />
         <button

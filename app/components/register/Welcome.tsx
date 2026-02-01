@@ -29,7 +29,7 @@ export default function Welcome({
             type="button"
             onClick={() => setSelectedOption(option.id)}
             className={`
-              w-full px-4 py-2 rounded-lg text-left border font-medium
+              w-full px-4 py-3 rounded-lg text-left border font-medium
               ${
                 selectedOption === option.id
                   ? "border-black bg-[#E8E8E8]"

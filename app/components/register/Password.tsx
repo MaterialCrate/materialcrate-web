@@ -47,7 +47,7 @@ export default function Password({ password, setPassword }: passwordTypes) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="********"
-          className="border border-black w-full px-4 py-2 rounded-lg"
+          className="border border-black w-full px-4 py-3 rounded-lg"
           required
         />
         {isRegister && (

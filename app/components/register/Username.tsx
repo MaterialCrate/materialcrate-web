@@ -19,7 +19,7 @@ export default function Username({ username, setUsername }: passwordTypes) {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. bookworm"
-            className="border border-black w-full px-4 py-2 rounded-lg"
+            className="border border-black w-full px-4 py-3 rounded-lg"
             required
           />
         </div>

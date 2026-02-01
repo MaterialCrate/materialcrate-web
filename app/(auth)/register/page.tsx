@@ -67,10 +67,7 @@ export default function Page() {
         // If storage fails, continue to login without profile sync.
       }
 
-      const loginUrl = new URL("/auth/login", window.location.origin);
-      loginUrl.searchParams.set("login_hint", email);
-      loginUrl.searchParams.set("returnTo", "/");
-      window.location.href = loginUrl.toString();
+      window.location.href = "/login";
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Signup failed");

@@ -22,7 +22,7 @@ export default function Institution({
             value={institution}
             onChange={(e) => setInstitution(e.target.value)}
             placeholder="e.g. Copperbelt University"
-            className="border border-black w-full px-4 py-2 rounded-lg"
+            className="border border-black w-full px-4 py-3 rounded-lg"
             required
           />
         </div>
