@@ -1,0 +1,21 @@
+type User {
+  id: ID!
+  username: String!
+  email: String!
+  institution: String
+  program: String
+  createdAt: String
+}
+
+type Query {
+  me: User
+  user(id: ID!): User
+}
+
+type Mutation {
+  completeProfile(
+    username: String!
+    institution: String!
+    program: String
+  ): User
+}

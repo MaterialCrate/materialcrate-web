@@ -60,7 +60,7 @@ export default function Email({ email, setEmail }: emailTypes) {
                 )
               }
             >
-              {pathname === "/register" ? "Sign up" : "Sign in"}
+              {pathname === "/register" ? "Sign in" : "Sign up"}
             </span>
           </p>
         </div>

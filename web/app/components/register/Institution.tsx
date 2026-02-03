@@ -31,7 +31,7 @@ export default function Institution({
         type="submit"
         disabled={!institution}
         className={`
-          py-3 text-center rounded-4xl font-medium transition-all duration-200 fixed bottom-8 left-8 right-12 mx-auto
+          py-3 text-center rounded-4xl font-medium transition-all duration-200 fixed bottom-8 left-8 right-8 mx-auto
           ${
             institution
               ? "bg-[#E1761F] text-white active:bg-black"
