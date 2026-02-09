@@ -7,12 +7,25 @@ type User {
   createdAt: String
 }
 
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 type Query {
   me: User
   user(id: ID!): User
 }
 
 type Mutation {
+  signup(
+    email: String!
+    password: String!
+    username: String!
+    institution: String
+    program: String
+  ): AuthPayload
+  login(email: String!, password: String!): AuthPayload
   completeProfile(
     username: String!
     institution: String!

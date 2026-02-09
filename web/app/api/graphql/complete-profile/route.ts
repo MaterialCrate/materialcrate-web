@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth0 } from "@/app/lib/auth0";
+import { cookies } from "next/headers";
 
 type CompleteProfileBody = {
   username?: string;
@@ -12,9 +12,8 @@ const GRAPHQL_ENDPOINT =
   process.env.GRAPHQL_ENDPOINT ?? "http://localhost:4000/graphql";
 
 const COMPLETE_PROFILE_MUTATION = `
-  mutation CompleteProfile($username: String, $institution: String, $program: String) {
+  mutation CompleteProfile($username: String!, $institution: String!, $program: String) {
     completeProfile(username: $username, institution: $institution, program: $program) {
-      _id
       email
       username
       institution
@@ -32,20 +31,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  let accessToken: string;
-  try {
-    const tokenResponse = await auth0.getAccessToken();
-    accessToken = tokenResponse.token;
-    console.log("Auth0 access token:", accessToken);
-  } catch {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!body.username || !body.institution) {
+    return NextResponse.json(
+      { error: "Username and institution are required" },
+      { status: 400 },
+    );
+  }
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("mc_session")?.value;
+  if (!token) {
+    return NextResponse.json(
+      { error: "Authentication required to complete profile" },
+      { status: 401 },
+    );
   }
 
   const graphqlResponse = await fetch(GRAPHQL_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       query: COMPLETE_PROFILE_MUTATION,
@@ -64,6 +70,8 @@ export async function POST(req: Request) {
       {
         error:
           graphqlBody?.errors?.[0]?.message || "GraphQL completeProfile failed",
+        details: graphqlBody?.errors ?? null,
+        status: graphqlResponse.status,
       },
       { status: 502 },
     );

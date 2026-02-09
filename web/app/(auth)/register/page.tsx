@@ -41,7 +41,7 @@ export default function Page() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/custom-signup", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -58,16 +58,8 @@ export default function Page() {
         throw new Error(body.error || "Signup failed");
       }
 
-      try {
-        localStorage.setItem(
-          "pendingProfile",
-          JSON.stringify({ email, username, institution, program }),
-        );
-      } catch {
-        // If storage fails, continue to login without profile sync.
-      }
-
-      window.location.href = "/login";
+      const emailParam = encodeURIComponent(email);
+      window.location.href = `/verify-email${emailParam ? `?email=${emailParam}` : ""}`;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Signup failed");

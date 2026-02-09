@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { TbHome, TbFolders, TbArchive, TbUser } from "react-icons/tb";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/app/lib/auth-client";
 
 type NavItem = {
   label: string;
@@ -26,7 +26,7 @@ const items: NavItem[] = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isLoading } = useUser();
+  const { user, isLoading } = useAuth();
 
   return (
     <ul className="font-semibold text-xs flex w-full justify-between px-12">

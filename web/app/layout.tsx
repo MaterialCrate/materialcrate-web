@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Libre_Baskerville } from "next/font/google";
-import { Auth0Provider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 import ConditionalNavbar from "./components/ConditionalNavbar";
 
@@ -31,12 +30,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${libreBaskerville.variable} antialiased`}
     >
-      <Auth0Provider>
-        <body className="font-sans relative">
-          {children}
-          <ConditionalNavbar />
-        </body>
-      </Auth0Provider>
+      <body className="font-sans relative">
+        {children}
+        <ConditionalNavbar />
+      </body>
     </html>
   );
 }
