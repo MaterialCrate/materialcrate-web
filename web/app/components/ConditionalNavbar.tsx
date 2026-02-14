@@ -13,7 +13,7 @@ export default function ConditionalNavbar() {
   }
 
   return (
-    <nav className="fixed left-0 right-0 bottom-0 pb-[env(safe-area-inset-bottom)] py-4 bg-white border-t border-t-[#837F7F] flex items-center">
+    <nav className="fixed left-0 right-0 bottom-0 pb-[env(safe-area-inset-bottom)] py-4 bg-white border-t border-t-[#837F7F]/20 flex items-center">
       <Navbar />
     </nav>
   );

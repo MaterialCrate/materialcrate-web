@@ -10,7 +10,7 @@ export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
-    <div className="pt-6">
+    <div>
       <UploadDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
@@ -53,7 +53,7 @@ export default function Home() {
           <Add size={30} />
         </button>
       </div>
-      <div className="flex px-6 pb-6 shadow-[0_4px_6px_-2px_rgba(0,0,0,0.1)]">
+      <header className="flex px-6 py-6 shadow-[0_4px_6px_-2px_rgba(0,0,0,0.1)]">
         <div className="p-2 rounded-lg bg-[#EEEEEE] flex items-center gap-1">
           <Book size={22} variant="Bold" />
           <ArrowDown2 size={14} color="#959595" />
@@ -62,7 +62,7 @@ export default function Home() {
           placeholder="What material do you want to find?"
           className="flex-1 pl-4 placeholder:text-[#B0B0B0] outline-none text-sm"
         />
-      </div>
+      </header>
       <main>
         <Post />
         <div className="px-6">
