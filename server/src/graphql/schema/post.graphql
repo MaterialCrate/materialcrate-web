@@ -9,6 +9,10 @@ type Post {
   createdAt: String!
 }
 
+extend type Query {
+  posts: [Post!]!
+}
+
 extend type Mutation {
   createPost(
     fileBase64: String!

@@ -4,6 +4,7 @@ import { PostResolver } from "./post.resolver";
 export const resolvers = {
   Query: {
     ...UserResolver.Query,
+    ...PostResolver.Query,
   },
   Mutation: {
     ...UserResolver.Mutation,

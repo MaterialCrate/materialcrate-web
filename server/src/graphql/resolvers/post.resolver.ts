@@ -20,6 +20,18 @@ const buildS3FileUrl = (bucket: string, region: string, key: string) =>
   `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
 
 export const PostResolver = {
+  Query: {
+    posts: async () => {
+      return prisma.post.findMany({
+        include: {
+          author: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    },
+  },
   Mutation: {
     createPost: async (_: unknown, args: CreatePostArgs, ctx: any) => {
       if (!ctx.user?.sub) {

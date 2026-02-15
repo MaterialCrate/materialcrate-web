@@ -1,13 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Book, ArrowDown2, Add, DocumentUpload } from "iconsax-reactjs";
-import Post from "./components/home/Post";
+import Post, { type HomePost } from "./components/home/Post";
 import UploadDrawer from "./components/home/UploadDrawer";
 
 export default function Home() {
   const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [posts, setPosts] = useState<HomePost[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadPosts() {
+      try {
+        const response = await fetch("/api/posts", {
+          method: "GET",
+          signal: controller.signal,
+          cache: "no-store",
+        });
+
+        const body = await response.json().catch(() => ({}));
+        setPosts(Array.isArray(body?.posts) ? body.posts : []);
+      } catch {
+        if (!controller.signal.aborted) {
+          setPosts([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingPosts(false);
+        }
+      }
+    }
+
+    loadPosts();
+    return () => controller.abort();
+  }, []);
 
   return (
     <div>
@@ -64,11 +94,22 @@ export default function Home() {
         />
       </header>
       <main>
-        <Post />
-        <div className="px-6">
-          <div className="h-px w-full bg-black/40 mt-4" />
-        </div>
-        <Post />
+        {isLoadingPosts ? (
+          <p className="px-6 py-8 text-sm text-[#696969]">Loading posts...</p>
+        ) : posts.length === 0 ? (
+          <p className="px-6 py-8 text-sm text-[#696969]">No posts yet.</p>
+        ) : (
+          posts.map((post, index) => (
+            <div key={post.id}>
+              <Post post={post} />
+              {index < posts.length - 1 ? (
+                <div className="px-6">
+                  <div className="h-px w-full bg-black/40 mt-4" />
+                </div>
+              ) : null}
+            </div>
+          ))
+        )}
       </main>
     </div>
   );
