@@ -27,7 +27,7 @@ type Mutation {
     program: String
   ): AuthPayload
   login(email: String!, password: String!): AuthPayload
-  verifyEmail(token: String!): Boolean!
+  verifyEmailCode(email: String!, code: String!): Boolean!
   resendVerificationEmail(email: String!): Boolean!
   completeProfile(
     username: String!

@@ -49,7 +49,7 @@ export default function Page() {
   return (
     <form
       className="flex flex-col h-screen items-center px-8 py-12 gap-16 relative"
-      onSubmit={step < 6 ? handleNext : handleSubmit}
+      onSubmit={step < 2 ? handleNext : handleSubmit}
     >
       {step !== 1 && (
         <HiOutlineArrowLeft
@@ -64,6 +64,8 @@ export default function Page() {
       ) : (
         <Password password={password} setPassword={setPassword} />
       )}
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {loading ? <p className="text-sm text-[#444444]">Signing in...</p> : null}
     </form>
   );
 }

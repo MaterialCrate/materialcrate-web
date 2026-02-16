@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import {
   sendVerificationEmailForUser,
-  verifyEmailToken,
+  verifyEmailCode,
 } from "../../auth/emailVerification";
 
 const createToken = (userId: string, email: string) => {
@@ -55,6 +55,15 @@ export const UserResolver = {
           institution: institution ?? null,
           program: program ?? null,
         },
+      }).catch((error) => {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        ) {
+          throw new Error("Email or username already in use");
+        }
+
+        throw error;
       });
 
       await sendVerificationEmailForUser(user.id, user.email);
@@ -88,12 +97,15 @@ export const UserResolver = {
       return { token, user };
     },
 
-    verifyEmail: async (_: unknown, { token }: { token: string }) => {
-      if (!token) {
-        throw new Error("Verification token is required");
+    verifyEmailCode: async (
+      _: unknown,
+      { email, code }: { email: string; code: string },
+    ) => {
+      if (!email || !code) {
+        throw new Error("Email and code are required");
       }
 
-      return verifyEmailToken(token);
+      return verifyEmailCode(email, code);
     },
 
     resendVerificationEmail: async (
