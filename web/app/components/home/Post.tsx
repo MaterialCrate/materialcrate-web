@@ -25,7 +25,22 @@ type PostProps = {
 };
 
 function formatTimeAgo(timestamp: string) {
-  const value = new Date(timestamp).getTime();
+  const trimmed = timestamp?.trim();
+  if (!trimmed) return "Just now";
+
+  let value = Number.NaN;
+  const numericTimestamp = Number(trimmed);
+
+  if (Number.isFinite(numericTimestamp)) {
+    // Accept both Unix seconds and Unix milliseconds.
+    value =
+      numericTimestamp < 1_000_000_000_000
+        ? numericTimestamp * 1000
+        : numericTimestamp;
+  } else {
+    value = new Date(trimmed).getTime();
+  }
+
   if (Number.isNaN(value)) return "Just now";
 
   const seconds = Math.max(0, Math.floor((Date.now() - value) / 1000));
