@@ -18,7 +18,8 @@ const POSTS_QUERY = `
       createdAt
       author {
         id
-        fullName
+        firstName
+        surname
         username
       }
     }

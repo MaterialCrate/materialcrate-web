@@ -15,7 +15,8 @@ export type HomePost = {
   createdAt: string;
   author?: {
     id: string;
-    fullName?: string | null;
+    firstName?: string | null;
+    surname?: string | null;
     username: string;
   } | null;
 };
@@ -57,7 +58,11 @@ function formatTimeAgo(timestamp: string) {
 }
 
 export default function Post({ post }: PostProps) {
-  const authorFullName = post.author?.fullName || "Unknown user";
+  const authorFullName =
+    [post.author?.firstName, post.author?.surname]
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(" ") || "Unknown user";
   const authorUsername = post.author?.username
     ? `@${post.author.username}`
     : "@unknown";

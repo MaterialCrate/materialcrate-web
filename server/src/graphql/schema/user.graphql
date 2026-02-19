@@ -1,7 +1,8 @@
 type User {
   id: ID!
   username: String!
-  fullName: String
+  firstName: String
+  surname: String
   email: String!
   emailVerified: Boolean!
   institution: String
@@ -24,7 +25,8 @@ type Mutation {
     email: String!
     password: String!
     username: String!
-    fullName: String!
+    firstName: String!
+    surname: String!
     institution: String
     program: String
   ): AuthPayload

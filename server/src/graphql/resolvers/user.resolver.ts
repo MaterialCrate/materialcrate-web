@@ -30,10 +30,14 @@ export const UserResolver = {
 
   Mutation: {
     signup: async (_: unknown, args: any) => {
-      const { email, password, username, fullName, institution, program } = args;
+      const { email, password, username, firstName, surname, institution, program } = args;
+      const normalizedFirstName = firstName?.trim();
+      const normalizedSurname = surname?.trim();
 
-      if (!email || !password || !username || !fullName) {
-        throw new Error("Email, password, username, and full name are required");
+      if (!email || !password || !username || !normalizedFirstName || !normalizedSurname) {
+        throw new Error(
+          "Email, password, username, first name, and surname are required",
+        );
       }
 
       const existing = await prisma.user.findFirst({
@@ -47,15 +51,18 @@ export const UserResolver = {
       }
 
       const hashed = await bcrypt.hash(password, 12);
+      const createUserData = {
+        email,
+        password: hashed,
+        username,
+        firstName: normalizedFirstName,
+        surname: normalizedSurname,
+        institution: institution ?? null,
+        program: program ?? null,
+      };
+
       const user = await prisma.user.create({
-        data: {
-          email,
-          password: hashed,
-          username,
-          fullName,
-          institution: institution ?? null,
-          program: program ?? null,
-        },
+        data: createUserData as any,
       }).catch((error) => {
         if (
           error instanceof Prisma.PrismaClientKnownRequestError &&

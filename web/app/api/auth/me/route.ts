@@ -10,7 +10,8 @@ const ME_QUERY = `
       id
       email
       username
-      fullName
+      firstName
+      surname
       institution
       program
     }

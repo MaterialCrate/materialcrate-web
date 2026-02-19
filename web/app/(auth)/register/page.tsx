@@ -16,7 +16,8 @@ export default function Page() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-  const [fullName, setFullName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [surname, setSurname] = useState<string>("");
   const [institution, setInstitution] = useState<string>("");
   const [program, setProgram] = useState<string>("");
   const [toGoPage, setToGoPage] = useState<string>("");
@@ -31,7 +32,7 @@ export default function Page() {
       setStep(3);
     } else if (step === 3 && username) {
       setStep(4);
-    } else if (step === 4 && fullName) {
+    } else if (step === 4 && firstName && surname) {
       setStep(5);
     } else if (step === 5 && institution) {
       setStep(6);
@@ -53,7 +54,8 @@ export default function Page() {
           email,
           password,
           username,
-          fullName,
+          firstName,
+          surname,
           institution,
           program,
         }),
@@ -97,7 +99,12 @@ export default function Page() {
       ) : step === 3 ? (
         <Username username={username} setUsername={setUsername} />
       ) : step === 4 ? (
-        <FullName fullName={fullName} setFullName={setFullName} />
+        <FullName
+          firstName={firstName}
+          setFirstName={setFirstName}
+          surname={surname}
+          setSurname={setSurname}
+        />
       ) : step === 5 ? (
         <Institution
           institution={institution}

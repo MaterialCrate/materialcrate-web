@@ -8,7 +8,8 @@ const SIGNUP_MUTATION = `
     $email: String!
     $password: String!
     $username: String!
-    $fullName: String!
+    $firstName: String!
+    $surname: String!
     $institution: String
     $program: String
   ) {
@@ -16,7 +17,8 @@ const SIGNUP_MUTATION = `
       email: $email
       password: $password
       username: $username
-      fullName: $fullName
+      firstName: $firstName
+      surname: $surname
       institution: $institution
       program: $program
     ) {
@@ -25,7 +27,8 @@ const SIGNUP_MUTATION = `
         id
         email
         username
-        fullName
+        firstName
+        surname
         institution
         program
       }
@@ -37,7 +40,8 @@ type SignupBody = {
   email?: string;
   password?: string;
   username?: string;
-  fullName?: string;
+  firstName?: string;
+  surname?: string;
   institution?: string;
   program?: string;
 };
@@ -51,11 +55,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { email, password, username, fullName, institution, program } = body;
+  const { email, password, username, firstName, surname, institution, program } = body;
 
-  if (!email || !password || !username || !fullName) {
+  if (!email || !password || !username || !firstName || !surname) {
     return NextResponse.json(
-      { error: "Email, password, username, and full name are required" },
+      {
+        error:
+          "Email, password, username, first name, and surname are required",
+      },
       { status: 400 },
     );
   }
@@ -65,7 +72,15 @@ export async function POST(req: Request) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       query: SIGNUP_MUTATION,
-      variables: { email, password, username, fullName, institution, program },
+      variables: {
+        email,
+        password,
+        username,
+        firstName,
+        surname,
+        institution,
+        program,
+      },
     }),
   });
 

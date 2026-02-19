@@ -11,7 +11,8 @@ const LOGIN_MUTATION = `
         id
         email
         username
-        fullName
+        firstName
+        surname
         institution
         program
       }
