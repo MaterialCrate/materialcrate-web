@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 
 type CompleteProfileBody = {
   username?: string;
+  firstName?: string;
+  surname?: string;
   institution?: string;
   program?: string;
   email?: string;
@@ -12,10 +14,24 @@ const GRAPHQL_ENDPOINT =
   process.env.GRAPHQL_ENDPOINT ?? "http://localhost:4000/graphql";
 
 const COMPLETE_PROFILE_MUTATION = `
-  mutation CompleteProfile($username: String!, $institution: String!, $program: String) {
-    completeProfile(username: $username, institution: $institution, program: $program) {
+  mutation CompleteProfile(
+    $username: String!
+    $firstName: String!
+    $surname: String!
+    $institution: String!
+    $program: String
+  ) {
+    completeProfile(
+      username: $username
+      firstName: $firstName
+      surname: $surname
+      institution: $institution
+      program: $program
+    ) {
       email
       username
+      firstName
+      surname
       institution
       program
     }
@@ -31,9 +47,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  if (!body.username || !body.institution) {
+  if (!body.username || !body.firstName || !body.surname || !body.institution) {
     return NextResponse.json(
-      { error: "Username and institution are required" },
+      {
+        error:
+          "Username, first name, surname, and institution are required",
+      },
       { status: 400 },
     );
   }
@@ -57,6 +76,8 @@ export async function POST(req: Request) {
       query: COMPLETE_PROFILE_MUTATION,
       variables: {
         username: body.username,
+        firstName: body.firstName,
+        surname: body.surname,
         institution: body.institution,
         program: body.program,
       },

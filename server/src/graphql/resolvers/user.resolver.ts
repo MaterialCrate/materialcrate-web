@@ -145,12 +145,25 @@ export const UserResolver = {
         throw new Error("Not authenticated");
       }
 
+      const username = args.username?.trim();
+      const firstName = args.firstName?.trim();
+      const surname = args.surname?.trim();
+      const institution = args.institution?.trim();
+
+      if (!username || !firstName || !surname || !institution) {
+        throw new Error(
+          "Username, first name, surname, and institution are required",
+        );
+      }
+
       try {
         return await prisma.user.update({
           where: { id: ctx.user.sub },
           data: {
-            username: args.username,
-            institution: args.institution,
+            username,
+            firstName,
+            surname,
+            institution,
             program: args.program ?? null,
           },
         });

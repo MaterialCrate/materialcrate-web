@@ -1,29 +1,71 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Edit } from "iconsax-reactjs";
 import ActionButton from "@/app/components/ActionButton";
+import Alert from "@/app/components/Alert";
 
 type UserProfile = {
   username: string;
-  firstname: string;
+  firstName: string;
   surname: string;
-  instituion: string;
+  institution: string;
   program: string;
 };
 
 export default function ProfileEdit() {
   const [profile, setProfile] = useState<UserProfile>({
-    username: "johndoe",
-    firstname: "John",
-    surname: "Doe",
-    instituion: "University of Example",
-    program: "Computer Science",
+    username: "",
+    firstName: "",
+    surname: "",
+    institution: "",
+    program: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const router = useRouter();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadProfile = async () => {
+      setIsLoading(true);
+      setError("");
+      try {
+        const response = await fetch("/api/auth/me", { method: "GET" });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || !body?.user) {
+          throw new Error("Failed to load profile");
+        }
+
+        if (!mounted) return;
+        setProfile({
+          username: body.user.username ?? "",
+          firstName: body.user.firstName ?? "",
+          surname: body.user.surname ?? "",
+          institution: body.user.institution ?? "",
+          program: body.user.program ?? "",
+        });
+      } catch (err: unknown) {
+        if (!mounted) return;
+        setError(err instanceof Error ? err.message : "Failed to load profile");
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const textInputs = [
     {
@@ -37,10 +79,10 @@ export default function ProfileEdit() {
     },
     {
       label: "First Name",
-      value: profile.firstname,
+      value: profile.firstName,
       onchange: (e: React.ChangeEvent<HTMLInputElement>) =>
-        setProfile({ ...profile, firstname: e.target.value }),
-      key: "firstname",
+        setProfile({ ...profile, firstName: e.target.value }),
+      key: "firstName",
       minLength: 2,
       maxLength: 12,
     },
@@ -55,10 +97,10 @@ export default function ProfileEdit() {
     },
     {
       label: "Institution",
-      value: profile.instituion,
+      value: profile.institution,
       onchange: (e: React.ChangeEvent<HTMLInputElement>) =>
-        setProfile({ ...profile, instituion: e.target.value }),
-      key: "instituion",
+        setProfile({ ...profile, institution: e.target.value }),
+      key: "institution",
       minLength: 3,
       maxLength: 50,
     },
@@ -73,12 +115,49 @@ export default function ProfileEdit() {
     },
   ];
 
-  const isSaveDisabled = textInputs.some(
-    (input) => input.value.trim().length < input.minLength,
-  );
+  const isSaveDisabled =
+    textInputs.some((input) => input.value.trim().length < input.minLength) ||
+    isLoading ||
+    isSaving;
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isSaveDisabled) return;
+
+    setIsSaving(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/graphql/complete-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: profile.username.trim(),
+          firstName: profile.firstName.trim(),
+          surname: profile.surname.trim(),
+          institution: profile.institution.trim(),
+          program: profile.program.trim() || null,
+        }),
+      });
+
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(body?.error || "Failed to save profile");
+      }
+
+      setMessage("Profile updated successfully.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div>
+      {message && <Alert type="success" message={message} />}
+      {error && <Alert type="error" message={error} />}
       <header className="fixed top-0 left-0 right-0 bg-white pb-4 pt-12 px-6 shadow-[0_4px_6px_-2px_rgba(0,0,0,0.1)] flex items-center">
         <button aria-label="Back" type="button" onClick={() => router.back()}>
           <ArrowLeft size={24} />
@@ -87,7 +166,10 @@ export default function ProfileEdit() {
           <h1>Profile</h1>
         </div>
       </header>
-      <form className="pt-30 px-6 flex flex-col items-center gap-10">
+      <form
+        className="pt-30 px-6 flex flex-col items-center gap-10"
+        onSubmit={handleSave}
+      >
         <div className="w-35 h-35 rounded-full bg-[#F1F1F1] relative">
           <button
             aria-label="edit pfp"
@@ -108,6 +190,7 @@ export default function ProfileEdit() {
                 placeholder={input.value}
                 value={input.value}
                 onChange={input.onchange}
+                disabled={isLoading || isSaving}
                 required
                 minLength={input.minLength}
                 maxLength={input.maxLength}
@@ -118,7 +201,7 @@ export default function ProfileEdit() {
         </div>
         <ActionButton
           type="submit"
-          label="Save Changes"
+          label={isSaving ? "Saving..." : "Save Changes"}
           className="fixed left-8 right-8 bottom-12"
           disabled={isSaveDisabled}
         />
