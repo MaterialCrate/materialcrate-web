@@ -9,14 +9,19 @@ datasource db {
 
 model User {
   id            String   @id @default(cuid())
-  username      String   @unique
+  username      String
   firstName     String?
   surname       String?
-  email         String   @unique
+  email         String
   password      String
   emailVerified Boolean  @default(false)
   emailVerificationToken          String?
   emailVerificationTokenExpiresAt DateTime?
+  deleted       Boolean  @default(false)
+  deletedAt     DateTime?
+  disabled      Boolean  @default(false)
+  disabledAt    DateTime?
+  disabledUntil DateTime?
   institution   String?
   program       String?
   posts         Post[]   @relation("UserPosts")
@@ -25,6 +30,9 @@ model User {
   followingRelations Follow[] @relation("UserFollowing")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([username])
+  @@index([email])
 }
 
 model Post {

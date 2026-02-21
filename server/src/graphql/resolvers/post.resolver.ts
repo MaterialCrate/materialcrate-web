@@ -51,6 +51,27 @@ const mapPostForGraphQL = (post: any, viewerId?: string) => ({
   viewerHasLiked: viewerId ? (post?.likes?.length ?? 0) > 0 : false,
 });
 
+const sanitizeAuthorIdentity = (author: any) => {
+  if (!author) return null;
+  if (author.deleted) {
+    return {
+      ...author,
+      firstName: "Deleted",
+      surname: "User",
+      username: "deleted",
+    };
+  }
+  if (author.disabled) {
+    return {
+      ...author,
+      firstName: "Disabled",
+      surname: "User",
+      username: "disabled",
+    };
+  }
+  return author;
+};
+
 export const PostResolver = {
   Query: {
     posts: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
@@ -178,6 +199,7 @@ export const PostResolver = {
     },
   },
   Post: {
+    author: (post: any) => sanitizeAuthorIdentity(post.author),
     likeCount: (post: any) => post.likeCount ?? post?._count?.likes ?? 0,
     viewerHasLiked: (post: any) => Boolean(post.viewerHasLiked),
   },

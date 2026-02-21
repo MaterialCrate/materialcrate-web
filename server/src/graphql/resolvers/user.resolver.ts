@@ -16,6 +16,8 @@ const createToken = (userId: string, email: string) => {
   return jwt.sign({ sub: userId, email }, secret, { expiresIn: "7d" });
 };
 
+const RESERVED_USERNAMES = new Set(["deleted", "disabled"]);
+
 export const UserResolver = {
   Query: {
     me: async (_: unknown, __: unknown, ctx: any) => {
@@ -31,18 +33,25 @@ export const UserResolver = {
   Mutation: {
     signup: async (_: unknown, args: any) => {
       const { email, password, username, firstName, surname, institution, program } = args;
+      const normalizedUsername = username?.trim();
       const normalizedFirstName = firstName?.trim();
       const normalizedSurname = surname?.trim();
 
-      if (!email || !password || !username || !normalizedFirstName || !normalizedSurname) {
+      if (!email || !password || !normalizedUsername || !normalizedFirstName || !normalizedSurname) {
         throw new Error(
           "Email, password, username, first name, and surname are required",
         );
       }
 
-      const existing = await prisma.user.findFirst({
+      if (RESERVED_USERNAMES.has(normalizedUsername.toLowerCase())) {
+        throw new Error("This username is reserved");
+      }
+
+      const existing = await (prisma as any).user.findFirst({
         where: {
-          OR: [{ email }, { username }],
+          deleted: false,
+          disabled: false,
+          OR: [{ email }, { username: normalizedUsername }],
         },
       });
 
@@ -54,7 +63,7 @@ export const UserResolver = {
       const createUserData = {
         email,
         password: hashed,
-        username,
+        username: normalizedUsername,
         firstName: normalizedFirstName,
         surname: normalizedSurname,
         institution: institution ?? null,
@@ -87,9 +96,36 @@ export const UserResolver = {
         throw new Error("Email and password are required");
       }
 
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await (prisma as any).user.findFirst({
+        where: { email, deleted: false },
+      });
       if (!user || !user.password) {
         throw new Error("Invalid credentials");
+      }
+
+      if (user.disabled) {
+        const now = new Date();
+        const disabledUntil = user.disabledUntil
+          ? new Date(user.disabledUntil)
+          : null;
+
+        if (disabledUntil && now >= disabledUntil) {
+          await (prisma as any).user.update({
+            where: { id: user.id },
+            data: {
+              disabled: false,
+              disabledAt: null,
+              disabledUntil: null,
+            },
+          });
+          user.disabled = false;
+        } else {
+          throw new Error("Account is disabled");
+        }
+      }
+
+      if (user.deleted) {
+        throw new Error("Account has been deleted");
       }
 
       if (!user.emailVerified) {
@@ -124,8 +160,8 @@ export const UserResolver = {
         throw new Error("Email is required");
       }
 
-      const user = await prisma.user.findUnique({
-        where: { email },
+      const user = await (prisma as any).user.findFirst({
+        where: { email, deleted: false, disabled: false },
       });
 
       if (!user) {
@@ -137,6 +173,73 @@ export const UserResolver = {
       }
 
       await sendVerificationEmailForUser(user.id, user.email);
+      return true;
+    },
+    deleteMyAccount: async (_: unknown, __: unknown, ctx: any) => {
+      if (!ctx.user?.sub) {
+        throw new Error("Not authenticated");
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: ctx.user.sub },
+        select: { id: true },
+      });
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      await (prisma as any).user.update({
+        where: { id: user.id },
+        data: {
+          deleted: true,
+          deletedAt: new Date(),
+          disabled: false,
+          disabledAt: null,
+          disabledUntil: null,
+        },
+      });
+
+      return true;
+    },
+    disableMyAccount: async (
+      _: unknown,
+      { until }: { until?: string | null },
+      ctx: any,
+    ) => {
+      if (!ctx.user?.sub) {
+        throw new Error("Not authenticated");
+      }
+
+      const disabledUntil = until ? new Date(until) : null;
+      if (disabledUntil && Number.isNaN(disabledUntil.getTime())) {
+        throw new Error("Invalid disable until date");
+      }
+
+      await (prisma as any).user.update({
+        where: { id: ctx.user.sub },
+        data: {
+          disabled: true,
+          disabledAt: new Date(),
+          disabledUntil,
+        },
+      });
+
+      return true;
+    },
+    reactivateMyAccount: async (_: unknown, __: unknown, ctx: any) => {
+      if (!ctx.user?.sub) {
+        throw new Error("Not authenticated");
+      }
+
+      await (prisma as any).user.update({
+        where: { id: ctx.user.sub },
+        data: {
+          disabled: false,
+          disabledAt: null,
+          disabledUntil: null,
+        },
+      });
+
       return true;
     },
 
@@ -156,8 +259,12 @@ export const UserResolver = {
         );
       }
 
+      if (RESERVED_USERNAMES.has(username.toLowerCase())) {
+        throw new Error("This username is reserved");
+      }
+
       try {
-        return await prisma.user.update({
+        return await (prisma as any).user.update({
           where: { id: ctx.user.sub },
           data: {
             username,

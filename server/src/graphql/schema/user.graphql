@@ -9,6 +9,11 @@ type User {
   followingCount: Int!
   email: String!
   emailVerified: Boolean!
+  deleted: Boolean!
+  deletedAt: String
+  disabled: Boolean!
+  disabledAt: String
+  disabledUntil: String
   institution: String
   program: String
   createdAt: String
@@ -37,6 +42,9 @@ type Mutation {
   login(email: String!, password: String!): AuthPayload
   verifyEmailCode(email: String!, code: String!): Boolean!
   resendVerificationEmail(email: String!): Boolean!
+  deleteMyAccount: Boolean!
+  disableMyAccount(until: String): Boolean!
+  reactivateMyAccount: Boolean!
   completeProfile(
     username: String!
     firstName: String!
